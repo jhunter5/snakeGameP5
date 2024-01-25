@@ -42,8 +42,6 @@ class Snake{
         this.head = this.body.head
         this.direction = "right"
         this.body.append(0,0)
-        this.body.append(1,0)
-        this.body.append(2,0)
     }
 
     verifyLimits(){
@@ -71,39 +69,61 @@ class Snake{
         }
     }
 
-    moveBody(){
-        let node = this.body.head.next;
-        while (node != null){
-            if (node.prev != null) {
-                node.x = node.prev.x;
-                node.y = node.prev.y;
-            }
-            node = node.prev;
-        }
-    }
-
     move(){
-        if (this.direction == "right"){
-            this.body.head.x++
-            this.verifyLimits()
-            this.moveBody()
-        } else if (this.direction == "left"){
-            this.body.head.x--
-            this.verifyLimits()
-            this.moveBody()
-        } else if (this.direction == "up"){
-            this.body.head.y--
-            this.verifyLimits()
-            this.moveBody()
-        } else if (this.direction == "down"){
-            this.body.head.y++
-            this.verifyLimits()
-            this.moveBody() 
+        let prevX = this.body.head.x
+        let prevY = this.body.head.y
+        switch (this.direction){
+            case "right":
+                this.body.head.x++
+                break
+            case "left":
+                this.body.head.x--
+                break
+            case "up":
+                this.body.head.y--
+                break
+            case "down":
+                this.body.head.y++
+                break
+        }
+        this.verifyLimits()
+        let node = this.body.head.next
+        while (node != null){
+            let auxX = node.x
+            let auxY = node.y
+            node.x = prevX
+            node.y = prevY
+            prevX = auxX
+            prevY = auxY
+            node = node.next
         }
     }
 
-    eat(){
-        this.body.append(this.body.tail.x, this.body.tail.y)
+    changeDirection(direction){
+        this.direction = direction
+    }
+
+    eat(food){
+        if (this.body.head.x === food.x && this.body.head.y === food.y) {
+            this.body.append(this.body.tail.x, this.body.tail.y);
+            return true;
+        }
+        return false;
+    }
+
+    verifyDead(){
+        let node = this.body.head.next
+        while (node != null){
+            if (node.x == this.body.head.x && node.y == this.body.head.y){
+                this.die()
+            }
+            node = node.next
+        }
+        return false
+    }
+
+    die(){
+        console.log("dead")
     }
 
     draw(){
@@ -117,6 +137,19 @@ class Snake{
 
 }
 
+class Food{
+    constructor(){
+        this.x = Math.floor(Math.random()*Math.floor(window.innerWidth/25))
+        this.y = Math.floor(Math.random()*Math.floor(window.innerHeight /25))
+    }
+
+    draw(){
+        fill(255, 204, 0);
+        rect(this.x*25, this.y*25, 25, 25)
+    }
+}
+
+
 function drawBoard(){
     fill(255)
     for (let i = 0; i < board.length; i++){
@@ -126,7 +159,9 @@ function drawBoard(){
     }
 }
 
+
 let snake = new Snake()
+let food = new Food()
 
 function setup(){
     createCanvas(window.innerWidth, window.innerHeight);
@@ -140,21 +175,27 @@ function draw() {
     drawBoard()
     snake.draw()
     snake.move()
+    snake.verifyDead()
 
     if (keyIsDown(LEFT_ARROW)){
-        snake.direction = "left"
+        snake.changeDirection("left")
     } else if (keyIsDown(RIGHT_ARROW)){
-        snake.direction = "right"
+        snake.changeDirection("right")
     }
     if (keyIsDown(UP_ARROW)){
-        snake.direction = "up"
+        snake.changeDirection("up")
     } else if (keyIsDown(DOWN_ARROW)){
-        snake.direction = "down"
+        snake.changeDirection("down")
     }
 
     if (keyIsDown(65)){
         snake.eat()
     }
+
+    if (snake.eat(food)){
+        food = new Food()
+    }
+    food.draw()
 }
 
 
