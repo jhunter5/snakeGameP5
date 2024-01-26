@@ -58,11 +58,11 @@ class Snake{
                 break
             case "up":
                 if (this.body.head.y < 0){
-                    this.body.head.y = board.length
+                    this.body.head.y = board[1].length
                 }
                 break
             case "down":
-                if (this.body.head.y > board.length){
+                if (this.body.head.y > board[1].length){
                     this.body.head.y = 0
                 }
                 break
@@ -100,6 +100,15 @@ class Snake{
     }
 
     changeDirection(direction){
+        if (this.direction == "right" && direction == "left"){
+            return
+        } else if (this.direction == "left" && direction == "right"){
+            return
+        } else if (this.direction == "up" && direction == "down"){
+            return
+        } else if (this.direction == "down" && direction == "up"){
+            return
+        }
         this.direction = direction
     }
 
@@ -196,6 +205,7 @@ function draw() {
         food = new Food()
     }
     food.draw()
+    console.log(snake.direction)
 }
 
 
